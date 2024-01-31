@@ -27,4 +27,4 @@ class BankAccount:
             return False
 
     def __str__(self):
-        return f"Account Holder: {self.account_holder}\nAccount Type: {self.account_type.name}\nBalance: {self.balance}\nMobile Number: {self.mobile_number}\nCreation Date: {self.creation_date}"
+        return f"Account Holder = {self.account_holder}\nAccount Type = {self.account_type.name}\nBalance = {self.balance}\nMobile Number = {self.mobile_number}\nCreation Date = {self.creation_date}"
