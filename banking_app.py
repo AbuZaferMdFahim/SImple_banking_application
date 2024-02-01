@@ -1,7 +1,7 @@
 from models import BankAccount, AccountType
-from colorama import Fore, Style, json
+from colorama import Fore, Style
 
-import datetime, bcrypt, getpass, random
+import datetime, bcrypt, getpass, random, json
 
 class User:
     def __init__(self, username, hashed_password):
@@ -132,17 +132,121 @@ class BankingApplication:
             print(account)
             print("...............................\n")
 
-    
+    def update_account(self, username):
+        if username in self.users:
+            account_number = int(input("Enter Your account number = "))
+            if account_number in self.accounts:
+                print("Select the information to update:\n")
+                print("1. Account Holder's Name")
+                print("2. Mobile Number")
+                print("3. Both\n")
+                option = int(input("Enter any number for an update (1-3): "))
+
+                if option == 1 or option == 3:
+                    updated_account_holder = input("Enter account holder's name = ")
+                    self.accounts[account_number].account_holder = updated_account_holder
+
+                if option == 2 or option == 3:
+                    updated_mobile_number = input("Enter updated mobile number = ")
+                    self.accounts[account_number].mobile_number = updated_mobile_number
+
+                print("Account updated successfully.\n")
+            else:
+                # for color using colorama
+                print(f"{Fore.RED}Update failed. Account not found.{Style.RESET_ALL}\n")
+        else:
+            print(f"{Fore.RED}User not logged in.{Style.RESET_ALL}\n")
+            return "main"
+
+    def delete_account(self, username):
+        if username in self.users:
+            account_number = int(input("Enter account number to delete: "))
+            if account_number in self.accounts:
+                del self.accounts[account_number]
+                print("Account deleted successfully.\n")
+            else:
+                print(f"{Fore.RED}Delete failed. Account not found.{Style.RESET_ALL}\n")
+        else:
+            print(f"{Fore.RED}User not logged in.{Style.RESET_ALL}\n")
+            return "main"
+
+    def deposit_amount(self, username):
+        account_number = int(input("Enter account number to deposit = "))
+        account = self.accounts.get(account_number)
+
+        if account:
+            deposit_amount = float(input("Enter deposit amount = "))
+            if deposit_amount < account.account_type.min_balance:
+                print(f"{Fore.RED}Deposit failed. (Minimum Deposit: {account.account_type.min_balance}){Style.RESET_ALL}\n")
+            else:
+                account.balance += deposit_amount
+                print("Amount deposited successfully.\n")
+        else:
+            print(f"{Fore.RED}Deposit failed. Account not found.{Style.RESET_ALL}\n")
+            return "main"
+
+
+
+    def withdraw_amount(self, username):
+        if username in self.users:
+            account_number = int(input("Enter account number to withdraw = "))
+            if account_number in self.accounts:
+                withdraw_amount = float(input("Enter withdrawal amount = "))
+                if withdraw_amount <= self.accounts[account_number].balance - self.accounts[account_number].account_type.min_balance:
+                    self.accounts[account_number].balance -= withdraw_amount
+                    print("Amount withdrawn successfully.\n")
+                else:
+                    print(f"{Fore.RED}Withdraw failed for Insufficient Funds.{Style.RESET_ALL}\n")
+            else:
+                print(f"{Fore.RED}Withdraw failed for Account not found.{Style.RESET_ALL}\n")
+        else:
+            print(f"{Fore.RED}User not logged in.{Style.RESET_ALL}\n")
+            return "main"
+
+    def search_account(self):
+        search_term = input("Enter account holder's name to search = ")
+        found_accounts = [account for account in self.accounts.values()
+                          if str(account.account_number) == search_term or account.account_holder == search_term]
+
+        if found_accounts:
+            print("\nSearch Results:\n")
+            for account in found_accounts:
+                print(f"Account Holder = {account.account_holder}, "
+                      f"Mobile Number = {account.mobile_number}, "
+                      f"Account Type = {account.account_type.name}, "
+                      f"Balance = {account.balance}")
+        else:
+            print(f"{Fore.RED}No matching accounts found.{Style.RESET_ALL}\n")
 
     def operation(self, username):
         while True:
             print("\nAccount Operations Menu:\n")
             print("Enter 1. Display All Accounts")
-
+            print("Enter 2. Update Account")
+            print("Enter 3. Delete Account")
+            print("Enter 4. Deposit Amount")
+            print("Enter 5. Withdraw Amount")
+            print("Enter 6. Search for Account")
+            print("Enter 7. Logout")
+            option = int(input("Enter any option (1-7): "))
 
             if option == 1:
                 self.display_all_accounts()
-        
+            elif option == 2:
+                self.update_account(username)
+            elif option == 3:
+                self.delete_account(username)
+            elif option == 4:
+                self.deposit_amount(username)
+            elif option == 5:
+                self.withdraw_amount(username)
+            elif option == 6:
+                self.search_account()
+            elif option == 7:
+                print("Logout successful.\n\n")
+                return "main"
+            else:
+                print("Please enter a number between 1 to 7.\n")
 
 if __name__ == "__main__":
     banking_app = BankingApplication()
